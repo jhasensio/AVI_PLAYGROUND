@@ -1,0 +1,218 @@
+{
+    'count': 1,
+    'results': [
+      {
+        '_last_modified': '1715753612163463',
+        'active_standby_se_tag': 'ACTIVE_STANDBY_SE_1',
+        'advertise_down_vs': false,
+        'allow_invalid_client_cert': false,
+        'analytics_policy': {
+          'all_headers': false,
+          'client_insights': 'NO_INSIGHTS',
+          'full_client_logs': {
+            'duration': 30,
+            'enabled': false,
+            'throttle': 10
+          },
+          'metrics_realtime_update': {
+            'duration': 30,
+            'enabled': false
+          },
+          'significant_log_throttle': 10,
+          'udf_log_throttle': 10
+        },
+        'analytics_profile_ref': 'https://192.168.1.15/api/analyticsprofile/analyticsprofile-28613c2c-4673-4b64-8db2-1cc5e2e8b199',
+        'application_profile_ref': 'https://192.168.1.15/api/applicationprofile/applicationprofile-91ed12ff-f73d-4b0f-975c-6fe1b5a55fec',
+        'bulk_sync_kvcache': false,
+        'close_client_conn_on_config_update': false,
+        'cloud_ref': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'cloud_type': 'CLOUD_NONE',
+        'delay_fairness': false,
+        'east_west_placement': false,
+        'enable_autogw': false,
+        'enabled': true,
+        'flow_dist': 'LOAD_AWARE',
+        'flow_label_type': 'NO_LABEL',
+        'http_policies': [
+          {
+            'http_policy_set_ref': 'https://192.168.1.15/api/httppolicyset/httppolicyset-707ae081-9985-42c7-bfd9-33299fdf1a0f',
+            'index': 11
+          }
+        ],
+        'ign_pool_net_reach': false,
+        'limit_doser': false,
+        'marked_for_delete': false,
+        'max_cps_per_client': 0,
+        'name': 'VS-VNF-SPLUNK-PROD-SPLUNK-443',
+        'network_profile_ref': 'https://192.168.1.15/api/networkprofile/networkprofile-41b26fd2-2469-4872-9928-1166fbe17815',
+        'network_security_policy_ref': 'https://192.168.1.15/api/networksecuritypolicy/networksecuritypolicy-4175a14d-976e-49a5-a338-2547c199d3c6',
+        'pool_ref': 'https://192.168.1.15/api/pool/pool-721d74fb-c40d-40b0-aadb-3e33c6b58666',
+        'redis_db': 13,
+        'redis_port': 5023,
+        'remove_listening_port_on_vs_down': false,
+        'scaleout_ecmp': false,
+        'se_group_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-37618c9e-62dc-4c60-bf4e-ed8f3bf115de',
+        'self_se_election': true,
+        'services': [
+          {
+            'enable_http2': false,
+            'enable_ssl': true,
+            'horizon_internal_ports': false,
+            'is_active_ftp_data_port': false,
+            'port': 443,
+            'port_range_end': 443
+          }
+        ],
+        'ssl_key_and_certificate_refs': [
+          'https://192.168.1.15/api/sslkeyandcertificate/sslkeyandcertificate-38c30e14-ba85-4b65-9c52-0d2f8a91ae15'
+        ],
+        'ssl_profile_ref': 'https://192.168.1.15/api/sslprofile/sslprofile-75d8049d-583c-48e1-b1c5-e58c762c47d9',
+        'ssl_sess_cache_avg_size': 1024,
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'tls_ticket_key': [
+          {
+            'aes_key': 'WaxG0bZ4prLDYV7o13O0/w==',
+            'hmac_key': 'zjDGaXpqMWIjyiU8ttltCA==',
+            'name': '36abf636-8c67-4450-b3b0-c25ae7ba4fcb'
+          },
+          {
+            'aes_key': 'iASebZ061TGeZRMcbudCZw==',
+            'hmac_key': 'za/XE1/F9dGsEpFvVpUB3w==',
+            'name': '16c08b8d-a687-4760-8843-7d6ce58bff4c'
+          },
+          {
+            'aes_key': '3bxGhZf97O/JMsItp2gHWg==',
+            'hmac_key': 'XW++6tI3ZpnwkoXW68MKCg==',
+            'name': '5e40197b-e3c0-409a-8ac4-c6a34b5e64c1'
+          }
+        ],
+        'traffic_enabled': true,
+        'type': 'VS_TYPE_NORMAL',
+        'url': 'https://192.168.1.15/api/virtualservice/virtualservice-7f002336-a9b8-4e7d-9b8b-5d88735f4fc1',
+        'use_bridge_ip_as_vip': false,
+        'use_vip_as_snat': false,
+        'uuid': 'virtualservice-7f002336-a9b8-4e7d-9b8b-5d88735f4fc1',
+        'version': 2450,
+        'vh_type': 'VS_TYPE_VH_ENHANCED',
+        'vip_runtime': [
+          {
+            'first_se_assigned_time': {
+              'secs': 1669113282,
+              'usecs': 456625
+            },
+            'num_additional_se': 0,
+            'requested_resource': {
+              'num_se': 1,
+              'num_standby_se': 1
+            },
+            'se_list': [
+              {
+                'active_on_cloud': false,
+                'active_on_se': true,
+                'admin_down_requested': false,
+                'attach_ip_in_progress': false,
+                'cloud_programming_done': true,
+                'cloud_programming_status': 'Virtual Service IP is not reachable in the Cloud',
+                'delete_in_progress': false,
+                'detach_ip_in_progress': false,
+                'incarnation': '2022-11-22 10:34:42.459091',
+                'is_portchannel': false,
+                'is_primary': false,
+                'is_standby': true,
+                'memory': 1987,
+                'mgmt_ip': {
+                  'addr': '150.1.52.131',
+                  'type': 'V4'
+                },
+                'scaleout_in_progress': false,
+                'se_programming_done': true,
+                'se_ready_in_progress': false,
+                'se_ref': 'https://192.168.1.15/api/serviceengine/se-005056960e55',
+                'sec_idx': 1,
+                'vcpus': 1,
+                'vip6_subnet_mask': 128,
+                'vip_intf_list': [
+                  {
+                    'is_portchannel': false,
+                    'vip_intf_ip': {
+                      'addr': '10.174.46.195',
+                      'type': 'V4'
+                    },
+                    'vip_intf_mac': '00:50:56:96:59:62',
+                    'vlan_id': 0
+                  }
+                ],
+                'vip_intf_mac': '00:50:56:96:59:62',
+                'vip_subnet_mask': 32,
+                'vlan_id': 0,
+                'vnic': [
+                  {
+                    'mac': '00:50:56:96:59:62',
+                    'type': 'VNIC_TYPE_FE'
+                  },
+                  {
+                    'mac': '00:50:56:96:59:62',
+                    'type': 'VNIC_TYPE_BE'
+                  }
+                ]
+              },
+              {
+                'active_on_cloud': true,
+                'active_on_se': true,
+                'admin_down_requested': false,
+                'attach_ip_in_progress': false,
+                'cloud_programming_done': true,
+                'cloud_programming_status': 'Virtual Service IP is reachable in the Cloud',
+                'delete_in_progress': false,
+                'detach_ip_in_progress': false,
+                'incarnation': '2022-11-22 10:34:42.472317',
+                'is_portchannel': false,
+                'is_primary': true,
+                'is_standby': false,
+                'memory': 1987,
+                'mgmt_ip': {
+                  'addr': '150.1.52.132',
+                  'type': 'V4'
+                },
+                'scaleout_in_progress': false,
+                'se_programming_done': true,
+                'se_ready_in_progress': false,
+                'se_ref': 'https://192.168.1.15/api/serviceengine/se-00505696d2c4',
+                'sec_idx': 0,
+                'vcpus': 1,
+                'vip6_subnet_mask': 128,
+                'vip_intf_list': [
+                  {
+                    'is_portchannel': false,
+                    'vip_intf_ip': {
+                      'addr': '10.174.46.196',
+                      'type': 'V4'
+                    },
+                    'vip_intf_mac': '00:50:56:96:a6:e0',
+                    'vlan_id': 0
+                  }
+                ],
+                'vip_intf_mac': '00:50:56:96:a6:e0',
+                'vip_subnet_mask': 32,
+                'vlan_id': 0,
+                'vnic': [
+                  {
+                    'mac': '00:50:56:96:a6:e0',
+                    'type': 'VNIC_TYPE_FE'
+                  },
+                  {
+                    'mac': '00:50:56:96:a6:e0',
+                    'type': 'VNIC_TYPE_BE'
+                  }
+                ]
+              }
+            ],
+            'vip_id': '0'
+          }
+        ],
+        'vrf_context_ref': 'https://192.168.1.15/api/vrfcontext/vrfcontext-8f35b0f1-23a7-4c7b-8023-64ffad81cf2d',
+        'vsvip_ref': 'https://192.168.1.15/api/vsvip/vsvip-40446f92-e6e6-4c85-848d-eb477fd95a72',
+        'weight': 1
+      }
+    ]
+  }

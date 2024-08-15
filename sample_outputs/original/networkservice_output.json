@@ -1,0 +1,113 @@
+{
+    'count': 4,
+    'results': [
+      {
+        '_last_modified': '1715753611797333',
+        'cloud_ref': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'name': 'NS-SPLUNK-PROD-DACON',
+        'routing_service': {
+          'advertise_backend_networks': false,
+          'enable_auto_gateway': false,
+          'enable_routing': true,
+          'enable_vip_on_all_interfaces': true,
+          'enable_vmac': false,
+          'floating_intf_ip': [
+            {
+              'addr': '10.174.46.194',
+              'type': 'V4'
+            }
+          ],
+          'graceful_restart': false,
+          'routing_by_linux_ipstack': false
+        },
+        'se_group_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-37618c9e-62dc-4c60-bf4e-ed8f3bf115de',
+        'service_type': 'ROUTING_SERVICE',
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/networkservice/networkservice-96997119-d18f-405a-9fed-f9a21e29c7b6',
+        'uuid': 'networkservice-96997119-d18f-405a-9fed-f9a21e29c7b6',
+        'vrf_ref': 'https://192.168.1.15/api/vrfcontext/vrfcontext-8f35b0f1-23a7-4c7b-8023-64ffad81cf2d'
+      },
+      {
+        '_last_modified': '1715753611805900',
+        'cloud_ref': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'name': 'NS-USP-PROD-PLANET',
+        'routing_service': {
+          'advertise_backend_networks': false,
+          'enable_auto_gateway': false,
+          'enable_routing': true,
+          'enable_vip_on_all_interfaces': true,
+          'enable_vmac': false,
+          'floating_intf_ip': [
+            {
+              'addr': '10.169.67.1',
+              'type': 'V4'
+            }
+          ],
+          'graceful_restart': false,
+          'routing_by_linux_ipstack': false
+        },
+        'se_group_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-7bb7d3f6-f6e8-4197-943c-32cbe72c677e',
+        'service_type': 'ROUTING_SERVICE',
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/networkservice/networkservice-f94345a1-da99-49f8-a29b-ff347c90d161',
+        'uuid': 'networkservice-f94345a1-da99-49f8-a29b-ff347c90d161',
+        'vrf_ref': 'https://192.168.1.15/api/vrfcontext/vrfcontext-f6611598-6403-41d7-b61d-52fcd2afdb81'
+      },
+      {
+        '_last_modified': '1715753611818677',
+        'cloud_ref': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'name': 'NS-DCCLM-PROD-PLANET-ANYCAST',
+        'routing_service': {
+          'advertise_backend_networks': false,
+          'enable_auto_gateway': false,
+          'enable_routing': true,
+          'enable_vip_on_all_interfaces': true,
+          'enable_vmac': false,
+          'floating_intf_ip': [
+            {
+              'addr': '10.0.2.102',
+              'type': 'V4'
+            },
+            {
+              'addr': '10.111.128.183',
+              'type': 'V4'
+            }
+          ],
+          'graceful_restart': false,
+          'routing_by_linux_ipstack': false
+        },
+        'se_group_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-fe650e18-1b0d-4c26-ab57-a2757cb914e4',
+        'service_type': 'ROUTING_SERVICE',
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/networkservice/networkservice-64917907-7ca2-4d54-ae1a-0a8494f1b24c',
+        'uuid': 'networkservice-64917907-7ca2-4d54-ae1a-0a8494f1b24c',
+        'vrf_ref': 'https://192.168.1.15/api/vrfcontext/vrfcontext-5e71977c-24cc-46f4-8596-46422a66db79'
+      },
+      {
+        '_last_modified': '1715753611832100',
+        'cloud_ref': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'name': 'NS-DCCLM-PROD-TELESALES',
+        'routing_service': {
+          'advertise_backend_networks': false,
+          'enable_auto_gateway': false,
+          'enable_routing': true,
+          'enable_vip_on_all_interfaces': true,
+          'enable_vmac': false,
+          'floating_intf_ip': [
+            {
+              'addr': '10.111.128.184',
+              'type': 'V4'
+            }
+          ],
+          'graceful_restart': false,
+          'routing_by_linux_ipstack': false
+        },
+        'se_group_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-fe650e18-1b0d-4c26-ab57-a2757cb914e4',
+        'service_type': 'ROUTING_SERVICE',
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/networkservice/networkservice-8c87eacf-7591-4d51-8619-3d896b5978c1',
+        'uuid': 'networkservice-8c87eacf-7591-4d51-8619-3d896b5978c1',
+        'vrf_ref': 'https://192.168.1.15/api/vrfcontext/vrfcontext-4eee6ade-6377-4ac3-b25b-3ab775c3b0b5'
+      }
+    ]
+  }

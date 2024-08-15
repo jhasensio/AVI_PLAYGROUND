@@ -1,0 +1,50 @@
+{
+    'count': 2,
+    'results': [
+      {
+        '_last_modified': '1715753610508111',
+        'autoscale_polling_interval': 60,
+        'dhcp_enabled': false,
+        'dns_resolution_on_se': false,
+        'enable_vip_on_all_interfaces': false,
+        'enable_vip_static_routes': false,
+        'ip6_autocfg_enabled': false,
+        'license_tier': 'BASIC',
+        'license_type': 'LIC_CORES',
+        'maintenance_mode': false,
+        'metrics_polling_interval': 300,
+        'mtu': 1500,
+        'name': 'Default-Cloud',
+        'prefer_static_routes': false,
+        'state_based_dns_registration': true,
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/cloud/cloud-4f80e787-8959-4421-8a40-1cd10242db70',
+        'uuid': 'cloud-4f80e787-8959-4421-8a40-1cd10242db70',
+        'vmc_deployment': false,
+        'vtype': 'CLOUD_NONE'
+      },
+      {
+        '_last_modified': '1715753610501933',
+        'autoscale_polling_interval': 60,
+        'dhcp_enabled': false,
+        'dns_resolution_on_se': false,
+        'enable_vip_on_all_interfaces': false,
+        'enable_vip_static_routes': true,
+        'ip6_autocfg_enabled': false,
+        'license_tier': 'BASIC',
+        'license_type': 'LIC_CORES',
+        'maintenance_mode': false,
+        'metrics_polling_interval': 300,
+        'mtu': 1500,
+        'name': 'vcsa01-rmctl',
+        'prefer_static_routes': true,
+        'se_group_template_ref': 'https://192.168.1.15/api/serviceenginegroup/serviceenginegroup-5e6637cd-3074-4356-91d3-bf60fc016da3',
+        'state_based_dns_registration': true,
+        'tenant_ref': 'https://192.168.1.15/api/tenant/admin',
+        'url': 'https://192.168.1.15/api/cloud/cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'uuid': 'cloud-99368083-d56d-4dc0-8bcb-4d6d63ea0026',
+        'vmc_deployment': false,
+        'vtype': 'CLOUD_NONE'
+      }
+    ]
+  }
