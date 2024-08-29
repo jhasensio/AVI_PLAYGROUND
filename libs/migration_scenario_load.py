@@ -8,7 +8,8 @@ import json
 def setup_scenario(session_env):
     source_segroup = "SEG-SOURCE-MAD-002"
     target_segroup = "SEG-TARGET-MAD-001"
-    network_name = "home-network"
+    network_name = "network-mad-002"
+    vrf-name = "VRF-MAD-002"
     vs_source_names = ["VS_SOURCE_001", "VS_SOURCE_002", "VS_SOURCE_003"]
     vsvip_source_names = ["vsvip-source-001", "vsvip-source-002", "vsvip-source-003"]
     vs_target_names = ["VS_TARGET_001", "VS_TARGET_002", "VS_TARGET_003"]
@@ -35,6 +36,25 @@ def setup_scenario(session_env):
         api_version=session_env['api_version']
         )
 
+
+vsvip_obj = {
+#            'name': "vsvip-"+vs['name'],
+#            'vip': [{
+#                   'vip_id': '1',
+#                   'ip_address':{
+#                       'addr': '192.168.1.150',
+#                       'type': 'V4'
+#                       }
+#                   }]
+#            }
+#resp = api.post('vsvip', data=json.dumps(vsvip_obj))
+#if resp.status_code in range(200, 299):
+#    print(resp)
+#    vsvip = api.get_object_by_name('vsvip', vsvip_obj['name'])
+#    allocated_IP = vsvip['vip'][0]['ip_address']['addr']
+#    print("The configured IP is: "+allocated_IP)
+#else:
+#    print('Error in creating vsvip :%s' % resp.text)
 
     # Create VSVIPs source Objects
     print ("* Creating VSVIPs Source Objects")
