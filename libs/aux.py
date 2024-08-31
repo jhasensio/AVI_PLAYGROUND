@@ -16,7 +16,7 @@ def display_menu_from_list (options, menu_title):
         return None
 
     print("\033[1m"+menu_title+"\033[0m")
-    print("\033[1m--------------------------------------------------\033[0m")
+    print("\033[1m--------------------------------------------------------------\033[0m")
     for index, option in enumerate(options, start=1):
         print(f"{index}. {option}")
     
