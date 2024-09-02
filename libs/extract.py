@@ -115,7 +115,7 @@ def extract_se_data_from_segroup (session_env, source_segroup_object):
     # Save Result
     return(resp_data)
 
-def extract_interface_data (session_env, source_se_data, source_if_name):
+def extract_interface_data (session_env, source_se_data, source_if_name, target_se_data, target_if_name):
     
    # Establish a first session with AVI Controller
     api = ApiSession(
@@ -139,18 +139,13 @@ def extract_interface_data (session_env, source_se_data, source_if_name):
         )
     
     output_config={}
+    se_config=[]
     # Extract Interface Information from Source Service Engines
     for i in range(len(source_se_data)):
-        config=[]
         print("\033[1mExtracting information from SOURCE SE "+str(i+1)+" interface to migrate "+source_if_name[i]+" \033[0m")
         print("\033[1m----------------------------------------------------------------------------------------------------\033[0m")
         se_data_vnics = source_se_data[i]["data_vnics"]
         se_data_vnic_to_migrate = [ adapter for adapter in se_data_vnics if adapter.get("if_name") == source_if_name[i]]
-        #se_data_vnic_to_migrate_df = pd.DataFrame(se_data_vnic_to_migrate)
-        time.sleep(1/4)
-        #display(se_data_vnic_to_migrate_df)
-        se_vnic_to_migrate_config = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]
-        se_vnic_to_migrate_config_df = pd.DataFrame(se_vnic_to_migrate_config)
 
         # Extract VRF UUID from the vrf_ref
         
@@ -161,37 +156,53 @@ def extract_interface_data (session_env, source_se_data, source_if_name):
         vrf_config = {  "vrfcontext": vrf_name,
                         "vrf_ref": vrf_ref,
                         "vrf_uuid": vrf_uuid
-                }
+                     }
 
         # Insert information into output_config dictionary
         output_config["ip_routing_config"] = vrf_config
 
-        # Writing VNIC extracted variables 
-        se_uuid = source_se_data[i]["uuid"]
-        ip_addr = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["ip_addr"]["addr"]
-        mask = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["mask"]
-        mac_address = se_data_vnic_to_migrate[0]["mac_address"]
-        if_name = source_if_name[i]
-        vrf_ref = se_data_vnic_to_migrate[0]["vrf_ref"]
+        # Writing SOURCE VNIC extracted variables 
+        src_se_uuid = source_se_data[i]["uuid"]
+        src_se_name = source_se_data[i]["name"]
+        src_ip_addr = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["ip_addr"]["addr"]
+        src_mask = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["mask"]
+        src_mac_address = se_data_vnic_to_migrate[0]["mac_address"]
+        src_if_name = source_if_name[i]
+        src_vrf_ref = se_data_vnic_to_migrate[0]["vrf_ref"]
+
+        # Writing TARGET VNIC extracted variables 
+        target_se_uuid = target_se_data[i]["uuid"]
+        target_se_name = target_se_data[i]["name"]
+        target_intf_name = target_if_name[i]
+        
 
         # Printing Interface configuration
-        print("   - Found IP Address "+ip_addr+"/"+str(mask))
-        print("   - Found MAC Address "+mac_address)
+        print("   - Found IP Address "+src_ip_addr+"/"+str(src_mask))
+        print("   - Found MAC Address "+src_mac_address)
         print("   - Found VRF Context "+vrf_name)
         print()
       
-      
+        
       # Populate a dictionary with extraced data
-        config= {
-                  "se_uuid": se_uuid,
-                  "ip_addr":ip_addr,
-                  "mask": mask,
-                  "mac_address": mac_address,
-                  "if_name": source_if_name[i],
-                  "vrf_ref": vrf_ref
-                  }
+        se_pair_config= {
+                  "source_se": {
+                     "se_uuid": src_se_uuid,
+                     "se_name": src_se_name,
+                     "if_name": src_if_name,
+                     "if_vrf_ref": src_vrf_ref,
+                     "if_ip_addr": src_ip_addr,
+                     "if_mask": src_mask,
+                     "if_mac_address": src_mac_address,
+                  },
+                   "target_se": {
+                       "se_uuid": target_se_uuid,
+                       "se_name": target_se_name,
+                       "if_name": target_intf_name
+                   }
+        } 
+        se_config.append(se_pair_config)
       # Populate a new key SE_n with discovered information for that particular interface
-        output_config["SE_"+str(i+1)] = config
+        output_config["se_pairs"] = se_config
 
     print("\033[1mExtracting IP Routing Information for the VRF Context " +vrf_name+ " where "+source_if_name[i]+" is attached to \033[0m")
     print("\033[1m----------------------------------------------------------------------------------------------------\033[0m")
@@ -249,9 +260,6 @@ def extract_interface_data (session_env, source_se_data, source_if_name):
         print('Error in GET request '+url_path+' :%s' % resp.text)
     
     return(output_config)
-
-
-
 
 def extract_vss_data (session_env, source_se_data, interface_config):    
    # Establish a first session with AVI Controller
@@ -318,7 +326,6 @@ def extract_vss_data (session_env, source_se_data, interface_config):
     # Save Result
     return(resp_data)
     
-
 def extract_network_vsvip_data (session_env, source_vs_data):    
    # Establish a first session with AVI Controller
     api = ApiSession(
