@@ -25,13 +25,10 @@ def display_menu_from_list (options, menu_title):
         if 1 <= choice <= len(options):
             return options[choice - 1]
         else:
-            print("Invalid choice. Please select a valid option.")
+            print()
+            print("\033[1mInvalid choice. Please select a valid option.\033[0m")
             return None
     except ValueError:
-        print("Invalid input. Please enter a number.")
+        print()
+        print("\033[1mInvalid input. Please enter a number.\033[0m")
         return None
-
-
-    
-
-

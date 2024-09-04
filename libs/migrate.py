@@ -6,32 +6,26 @@ import json
 
 
 # Disable interface if_name of service engine se_name 
-def disable_interface (session_env, se_name, if_name):  
+def disable_interface (api: object, se_name: str, if_name: str):  
 # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    """
+    Disable a interface named if_name of a servive engine name (Default-Cloud is assumed) 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    se_name : str
+      The name of the Service Engine where the interface belong to
+    
+    if_name : str
+      The name of the Service Engine where the interface belong to
+    
+    """ 
     # Read 
     se = api.get_object_by_name("serviceengine", se_name)
     se_uuid = se["uuid"]
-
-    #adapter_config = [ data_vnic for data_vnic in se["data_vnics"] if data_vnic.get("if_name") == if_name ]
     
     # Loop through each adapter in the list
     for adapter in se["data_vnics"]:
@@ -41,7 +35,6 @@ def disable_interface (session_env, se_name, if_name):
             adapter["enabled"] = False
      
     body = se
-
     # Define PUT parameters
     url_path="serviceengine/"+se_uuid
 
@@ -49,39 +42,31 @@ def disable_interface (session_env, se_name, if_name):
     resp = api.put (url_path, data=json.dumps(body))
 
     if resp.status_code in range(200, 299):
-      print(resp)
-      print("- Object "+url_path+" modified", resp.reason)#, resp.text)
-      print()
+      print(" - Interface "+if_name+" set to DISABLED at SE "+ se["name"])
     else:
       print('Error in modifying '+url_path+' :%s' % resp.text)
 
 # Enable interface if_name of service engine se_name 
-def enable_interface (session_env, se_name, if_name):  
-# Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def enable_interface (api: object, se_name: str, if_name: str):  
+    # Establish a first session with AVI Controller
+    """
+    Disable a interface named if_name of a servive engine name (Default-Cloud is assumed) 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    se_name : str
+      The name of the Service Engine where the interface belong to
+    
+    if_name : str
+      The name of the Service Engine where the interface belong to
+    
+    """ 
     # Read 
     se = api.get_object_by_name("serviceengine", se_name)
     se_uuid = se["uuid"]
-
-    #adapter_config = [ data_vnic for data_vnic in se["data_vnics"] if data_vnic.get("if_name") == if_name ]
     
     # Loop through each adapter in the list
     for adapter in se["data_vnics"]:
@@ -99,13 +84,142 @@ def enable_interface (session_env, se_name, if_name):
     resp = api.put (url_path, data=json.dumps(body))
 
     if resp.status_code in range(200, 299):
-      print(resp)
-      print("- Object "+url_path+" modified", resp.reason)#, resp.text)
-      print()
+      print(" - Interface "+if_name+" set to ENABLED at SE "+ se["name"])
+    else:
+      print('Error in modifying '+url_path+' :%s' % resp.text)
+
+# Configure interface if_name of service engine se_name 
+def configure_interface (api, target_se_data, target_vrf_name):
+    """
+    :param api: apisession object 
+    :param target_se: dictionary that must containing following keys(
+         se_name
+         if_name,
+         if_ip_addr,
+         if_mask,
+         vrf_name) 
+    """
+    """
+    Configure the IP  a interface named if_name of a servive engine name (Default-Cloud is assumed) 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    target_se: dict
+      A variable that must containing following keys(
+         se_name
+         if_name,
+         if_ip_addr,
+         if_mask,
+         vrf_name)
+
+    target_vrf_name: str
+      A string containing the name of the VRF attached to interface to configure  
+    
+    """ 
+    # Read 
+    se = api.get_object_by_name("serviceengine", target_se_data["se_name"], params={"include_name": "true"})
+    se_uuid = se["uuid"]
+    vrf = api.get_object_by_name("vrfcontext", target_vrf_name, params={"include_name": "true"})
+    vrf_ref = api.get_obj_ref(vrf)
+
+    # Loop through each adapter in the list
+    for adapter in se["data_vnics"]:
+        # Update config for matching interface
+        if adapter.get("if_name") == target_se_data["if_name"]:
+            # Update the value of keys to modify with new config
+            vnic_network = [{
+                "ip": {
+                  "ip_addr": {
+                      "addr": target_se_data["if_ip_addr"],
+                      "type": "V4"
+                    },
+                  "mask": target_se_data["if_mask"]
+                  },
+                  "mode": "STATIC"
+                }]
+            adapter["vnic_networks"]= vnic_network
+            adapter["enabled"] = False
+            adapter["vrf_ref"] = vrf_ref
+      
+    body = se
+
+    # Define PUT parameters
+    url_path="serviceengine/"+se_uuid
+
+    #Send BODY information via PUT
+    resp = api.put (url_path, data=json.dumps(body))
+
+    if resp.status_code in range(200, 299):
+      print(" - Interface "+target_se_data["if_name"]+" of Service Engine "+target_se_data["se_name"]+" configured with IP Address "+target_se_data["if_ip_addr"]+"/"+str(target_se_data["if_mask"])+" at VRF "+target_vrf_name)
     else:
       print('Error in modifying '+url_path+' :%s' % resp.text)
 
 
+def disable_vs (api: object, vs_name: str):  
+# Establish a first session with AVI Controller
+    """
+    Disable a interface named if_name of a servive engine name (Default-Cloud is assumed) 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    vs_name : str
+      The name of the VS to disable 
+    
+    """ 
+    # Read 
+    vs = api.get_object_by_name("virtualservice", vs_name)
+    vs_uuid = vs["uuid"]
     
 
+    body = vs
+    body["enabled"] = False
 
+    # Define PUT parameters
+    url_path="virtualservice/"+vs_uuid
+
+    #Send BODY information via PUT
+    resp = api.put (url_path, data=json.dumps(body))
+
+    if resp.status_code in range(200, 299):
+      print(" - VirtualService "+vs_name+" set to DISABLED")
+    else:
+      print('Error in modifying '+url_path+' :%s' % resp.text)
+
+def enable_vs (api: object, vs_name: str):  
+# Establish a first session with AVI Controller
+    """
+    Disable a Virtual service named if_name of a servive engine name (Default-Cloud is assumed) 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    vs_name : str
+      The name of the VS to enable 
+    
+    """ 
+    # Read 
+    vs = api.get_object_by_name("virtualservice", vs_name)
+    vs_uuid = vs["uuid"]
+    
+
+    body = vs
+    body["enabled"] = True
+
+    # Define PUT parameters
+    url_path="virtualservice/"+vs_uuid
+
+    #Send BODY information via PUT
+    resp = api.put (url_path, data=json.dumps(body))
+
+    if resp.status_code in range(200, 299):
+      print(" - VirtualService "+vs_name+" set to ENABLED")
+    else:
+      print('Error in modifying '+url_path+' :%s' % resp.text)

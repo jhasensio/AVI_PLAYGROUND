@@ -2,47 +2,40 @@ from avi.sdk.avi_api import ApiSession
 from requests.packages import urllib3
 urllib3.disable_warnings()
 import json
-import datetime, time
 import pandas as pd
 
+def extract_segroup_data (api: object, segroup_name: dict) -> dict:
+    """
+    Extract information of a given Service Engine Group
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    segroup_name : string
+      The service group name of interest
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing serviceenginegroup object output
 
-def extract_segroup_data (session_env, source_segroup_name):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    """ 
 
     # Define GET request parameters
     url_path = "serviceenginegroup"
     query = {
       "skip_default": "true",
-      "name": source_segroup_name,
+      "name": segroup_name,
       "include_name": "true"
     }
     # Send GET Request
     resp = api.get(url_path, params=query)
-    #print ("Request sent to URL: " + resp.url)
+
 
     # Control Response Status Code
     if resp.status_code in range(200, 299):
-      #print(resp)
-      #print(resp.reason)
         
       # Convert response JSON into Python Dictionary
       resp_data = json.loads(resp.text)
@@ -59,35 +52,32 @@ def extract_segroup_data (session_env, source_segroup_name):
     # Save Result
     return(resp_data[0])
 
-def extract_se_data_from_segroup (session_env, source_segroup_object):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
+def extract_se_data_from_segroup (api: object, segroup: dict) -> list:
+    """
+    Extract Service Engines information of a given Service Engine Group
+    
+    Parameters:
+    -----------
+    api : object
+      The avi.sdk.avi_api.ApiSession object containing session paramenters to use AVI API
+    
+    segroup : dict
+      The dictionary containing service engine group information
+    
+    Returns:
+    --------
+    list
+      Dictionary containing service engine configuration output
 
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    """ 
 
     # GET Service Engine Related Configuration
     # Define GET request parameters
-    se_group_uuid=source_segroup_object["uuid"]
+    segroup_uuid=segroup["uuid"]
     url_path = "serviceengine"
     query = {
       "skip_default": "true",
-      "refers_to": f"serviceenginegroup:{se_group_uuid}",
+      "refers_to": "serviceenginegroup:"+segroup_uuid,
       "include_name": "true"
     }
 
@@ -115,37 +105,40 @@ def extract_se_data_from_segroup (session_env, source_segroup_object):
     # Save Result
     return(resp_data)
 
-def extract_interface_data (session_env, source_se_data, source_if_name, target_se_data, target_if_name):
+def extract_interface_data (api: object, source_se_data: list, source_if_names: list, target_se_data: list, target_if_names: list) -> dict:
+    """
+    Extract relevant network and interface configuration for migration purposes from source to target  
     
-   # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    Parameters:
+    -----------
+    api : object
+      The avi.sdk.avi_api.ApiSession object containing session paramenters to use AVI API
     
+    source_se_data : list
+      A list containing source service engine group information
+    
+    source_if_name : list
+      A list with source if name, e.g ["eth1", "eth1"]
+    
+    source_se_data : list
+      A dictionary containing source service engine group information
+    
+    target_if_name : list
+      A string with target if name, e.g e.g ["eth2", "eth2"]
+    
+    Returns:
+    --------
+    list
+      Dictionary containing service engine configuration output
+    """ 
     output_config={}
     se_config=[]
     # Extract Interface Information from Source Service Engines
     for i in range(len(source_se_data)):
-        print("\033[1mExtracting information from SOURCE SE "+str(i+1)+" interface to migrate "+source_if_name[i]+" \033[0m")
+        print("\033[1mExtracting information from SOURCE SE "+str(i+1)+" interface to migrate "+source_if_names[i]+" \033[0m")
         print("\033[1m----------------------------------------------------------------------------------------------------\033[0m")
         se_data_vnics = source_se_data[i]["data_vnics"]
-        se_data_vnic_to_migrate = [ adapter for adapter in se_data_vnics if adapter.get("if_name") == source_if_name[i]]
+        se_data_vnic_to_migrate = [ adapter for adapter in se_data_vnics if adapter.get("if_name") == source_if_names[i]]
 
         # Extract VRF UUID from the vrf_ref
         
@@ -167,14 +160,15 @@ def extract_interface_data (session_env, source_se_data, source_if_name, target_
         src_ip_addr = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["ip_addr"]["addr"]
         src_mask = se_data_vnic_to_migrate[0]["vnic_networks"][0]["ip"]["mask"]
         src_mac_address = se_data_vnic_to_migrate[0]["mac_address"]
-        src_if_name = source_if_name[i]
+        src_if_name = source_if_names[i]
         src_vrf_ref = se_data_vnic_to_migrate[0]["vrf_ref"]
 
         # Writing TARGET VNIC extracted variables 
         target_se_uuid = target_se_data[i]["uuid"]
         target_se_name = target_se_data[i]["name"]
-        target_intf_name = target_if_name[i]
-        
+        target_intf_name = target_if_names[i]
+        target_if_ip_addr = src_ip_addr
+        target_if_mask = src_mask
 
         # Printing Interface configuration
         print("   - Found IP Address "+src_ip_addr+"/"+str(src_mask))
@@ -197,14 +191,16 @@ def extract_interface_data (session_env, source_se_data, source_if_name, target_
                    "target_se": {
                        "se_uuid": target_se_uuid,
                        "se_name": target_se_name,
-                       "if_name": target_intf_name
+                       "if_name": target_intf_name,
+                       "if_ip_addr": target_if_ip_addr,
+                       "if_mask": target_if_mask
                    }
         } 
         se_config.append(se_pair_config)
       # Populate a new key SE_n with discovered information for that particular interface
         output_config["se_pairs"] = se_config
 
-    print("\033[1mExtracting IP Routing Information for the VRF Context " +vrf_name+ " where "+source_if_name[i]+" is attached to \033[0m")
+    print("\033[1mExtracting IP Routing Information for the VRF Context " +vrf_name+ " where "+source_if_names[i]+" is attached to \033[0m")
     print("\033[1m----------------------------------------------------------------------------------------------------\033[0m")
 
     resp = api.get_object_by_name("vrfcontext", vrf_name)
@@ -232,7 +228,7 @@ def extract_interface_data (session_env, source_se_data, source_if_name, target_
     source_segroup_name = source_se_data[0]["se_group_ref"].split("#")[1]
     se_group_uuid = source_se_data[0]["se_group_ref"].split("/")[5].split("#")[0]
     
-    print("\033[1mExtracting Networservice Information for the VRF Context "+vrf_name+" and Service Engine Group "+source_segroup_name+" \033[0m")
+    print("\033[1mExtracting Networkservice Information for the VRF Context "+vrf_name+" and Service Engine Group "+source_segroup_name+" \033[0m")
     print("\033[1m----------------------------------------------------------------------------------------------------\033[0m")
 
     # Read Network Service attached to the VRF and Source SEGroup 
@@ -247,53 +243,45 @@ def extract_interface_data (session_env, source_se_data, source_if_name, target_
         print("No Network Service Found for that particular VRF/SE_GROUP")
       else:
         network_service_config = json.loads(resp.text)["results"][0]
-        print("Found Network Service for that VRF/SE_GROUP named "+network_service_config["name"])
+        print("   - Found Network Service for that VRF/SE_GROUP named "+network_service_config["name"])
         output_config["network_service_config"]=network_service_config
         try:
             for i in range(len(network_service_config["routing_service"]["floating_intf_ip"])):
                 float_addr = network_service_config["routing_service"]["floating_intf_ip"][i]["addr"]
                 float_type = network_service_config["routing_service"]["floating_intf_ip"][i]["type"]
-                print("   - Found floating IP"+float_type+" "+float_addr)
+                print("      - Found floating IP"+float_type+" "+float_addr)
         except:
-                print("   - No Floating IP Addresses found")
+                print("      - No Floating IP Addresses found")
     else:
-        print('Error in GET request '+url_path+' :%s' % resp.text)
+        print('Error in GET request networkservice:%s' % resp.text)
     
     return(output_config)
 
-def extract_vss_data (session_env, source_se_data, interface_config):    
-   # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def extract_vss_data (api: object, source_se_data: list, interface_config: dict) -> list:   
+    """
+    Extract relevant Virtual Services information from a given source_se_data and interface_config extracted previously using 
+    extract_se_data_from_se_group and extract_interface_data functions
     
-    output_config={}
-    #extract_vss_info (session_env, source_se_data, interface_config) 
-    # Extract related virtual services
-    # GET Virtual Services Related Configuration
-
-
-    #seg_data = source_segroup_data
-    # Define GET request parameters
+    Parameters:
+    -----------
+    api : object
+      The avi.sdk.avi_api.ApiSession object containing session paramenters to use AVI API
+    
+    source_se_data : list
+      A list containing source service engine group information
+    
+    interface_config : dictionary
+      A dictionary with interface config output from extract_interface_data function
+    
+    Returns:
+    --------
+    list
+      Dictionary containing Virtual Services Configuration 
+    """ 
+    
     se_group_uuid=source_se_data[0]["se_group_ref"].split("/")[5].split("#")[0]
     vrf_uuid=interface_config["ip_routing_config"]["vrf_uuid"]
-    url_path = "virtualservice"
+
     query = {
       "skip_default": "true",
       "refers_to": "serviceenginegroup:"+se_group_uuid,
@@ -303,86 +291,70 @@ def extract_vss_data (session_env, source_se_data, interface_config):
     }
 
     # Send GET Request
-    resp = api.get(url_path, params=query)
-    #print(json.dumps(json.loads(resp.text), indent=3))
+    resp = api.get("virtualservice", params=query)
+  
     # Control Response Status Code
     if resp.status_code in range(200, 299):
-      #print(resp)
-      #print(resp.reason)
         
       # Convert response JSON into Python Dictionary
       resp_data = json.loads(resp.text)
-      
 
       # Extract Result
       resp_data = resp_data["results"]
-      resp_names = [resp_name["name"] for resp_name in resp_data]
-      print("The following " + url_path + " names has been found:")
-      print(resp_names)
+      for vs in resp_data:
+         print("   - Found virtualservice named "+vs["name"]+" at VRF "+ vs["vrf_context_ref"].split("#")[1]+" associated with VSVIP "+vs["vsvip_ref"].split("#")[1])
       print()
     else:
-        print('Error in GET request '+url_path+' :%s' % resp.text)
+        print('Error in GET request virtualservice :%s' % resp.text)
 
     # Save Result
     return(resp_data)
     
-def extract_network_vsvip_data (session_env, source_vs_data):    
-   # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def extract_network_vsvip_data (api: object, source_vs_data: list) -> list:    
+    """
+    Extract relevant VSVIP and Network Placement information from previously collected Virtual Services information using extract_vss_data function 
+    
+    Parameters:
+    -----------
+    api : object
+      The avi.sdk.avi_api.ApiSession object containing session paramenters to use AVI API
+    
+    source_vs_data : list
+      A list containing relevant virtual service information extracted using extract_vss_data function
+    
+    Returns:
+    --------
+    list
+      Dictionary containing Virtual Services Configuration 
+    """ 
     
     config={}
     source_networks = []
     vsvips_config = []
     for i in range(len(source_vs_data)):
       vsvip_name = source_vs_data[i]["vsvip_ref"].split("#")[1]
-      vsvip = api.get_object_by_name("vsvip", vsvip_name)
-      placementnetwork_uuid = vsvip["vip"][0]["placement_networks"][0]["network_ref"].split("/")[5].split("#")[0]
+      vsvip = api.get_object_by_name("vsvip", vsvip_name, params={"include_name": "true"})
+      placement_network_name = vsvip["vip"][0]["placement_networks"][0]["network_ref"].split("#")[1]
+      placement_network_ref = vsvip["vip"][0]["placement_networks"][0]["network_ref"]
       
-      query = {
-          "uuid": placementnetwork_uuid,
-          "include_name": "true"
-      }
-      resp = api.get("network", params=query)
       
-      network_name = json.loads(resp.text)["results"][0]["name"]
-      if network_name not in source_networks:
-          source_networks.append(network_name)
+      if placement_network_name not in source_networks:
+          source_networks.append(placement_network_name)
         
       vip_config = {
           "name": vsvip["name"],
           "vrf_context_ref": vsvip["vrf_context_ref"],
+          "vrf_context_name": vsvip["vrf_context_ref"].split("#")[1],
           "ip_address": vsvip["vip"][0]["ip_address"]["addr"],
-          "placement_network_ref":  vsvip["vip"][0]["placement_networks"][0]["network_ref"],
-          "placement_network":  network_name     
+          "placement_network_ref":  placement_network_ref,
+          "placement_network":  placement_network_name     
         }
       vsvips_config.append(vip_config)
     # Update information 
     config["network_config"]=source_networks
     config["vsvips_config"]=vsvips_config
-    print ("The following placement networks has been found:")
-    print(source_networks)
-    print()
-    print ("The following vsvips networks has been found:")
-    vips=[]
-    for item in vsvips_config:
-        vips.append(item["name"])
-    print(vips)
+    for net in source_networks:
+      print ("   - Found placement network "+ net)
+    for vip in vsvips_config:
+      print ("   - Found vsvip named "+vip["name"]+ " at VRF "+ vip["vrf_context_name"] + " with IP Address " + vip["ip_address"] + " placed at network " + vip["placement_network"])
     return(config) 

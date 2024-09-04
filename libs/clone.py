@@ -1,39 +1,34 @@
 # Ancillary scripts for cloning existing AVI objects
 
-from avi.sdk.avi_api import ApiSession
+#from avi.sdk.avi_api import ApiSession
 from requests.packages import urllib3
 urllib3.disable_warnings()
 import json
 
 # Creates a NEW VRF named source_vrf-NEW
-def clone_vrf (session_env, source_vrf_name):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def clone_vrf (api: object, source_vrf_name: str) -> dict:
+    """
+    Clone a VRF from a given name appending suffix -NEW
     
-    # Get source object 
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    source_vrf_name : str
+      The name of the VRF to clone
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned vrf object output
+    """ 
+    
     # Cloning an object from an exising one after changing required parameters
     api_resource = "vrfcontext"
 
     # Get the existing Object to be used as template
-    body = api.get_object_by_name ("vrfcontext", source_vrf_name) # Response to be used as template
+    body = api.get_object_by_name ("vrfcontext", source_vrf_name, params={"include_name": "true"}) # Response to be used as template
     
     if (body):
       # Update body with new name if exists
@@ -53,29 +48,28 @@ def clone_vrf (session_env, source_vrf_name):
     else:
       return()
 
-
 # Creates a NEW NETWORK copied from source_network in vrfcontext vrf_name
-def clone_network (session_env, source_network, target_vrf_name):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
+def clone_network (api: object, source_network: list, target_vrf_name: str) -> dict:
+    """
+    Clone a network object with suffix -NEW from a given source network dictionary object on a give target vrf name
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    source_network : list
+      The name of the VRF to clone
+    
+    target_vrf_name : str
+      The name of the VRF to attach the new created network
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned vrf object output
 
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    """ 
     
     # Get source object 
     # Cloning an object from an exising one after changing required parameters
@@ -83,15 +77,15 @@ def clone_network (session_env, source_network, target_vrf_name):
     object_name = source_network
 
     # Get the existing Object to be used as template
-    body = api.get_object_by_name (api_resource, object_name) # Response to be used as template
+    body = api.get_object_by_name (api_resource, object_name, params={"include_name": "true"}) # Response to be used as template
 
     if (body):
       # Get VRF reference 
-      target_vrf = api.get_object_by_name("vrfcontext", target_vrf_name)
-      target_vrf_ref = api.get_obj_ref(target_vrf)
+      target_vrf = api.get_object_by_name("vrfcontext", target_vrf_name, params={"include_name": "true"})
 
       if (target_vrf):
-        # Update body with new name 
+        # Update body with new name
+        target_vrf_ref = api.get_obj_ref(target_vrf)
         body["name"] = source_network+"-NEW"
         body["vrf_context_ref"] = target_vrf_ref
         
@@ -109,52 +103,56 @@ def clone_network (session_env, source_network, target_vrf_name):
           print('Error in creating '+api_resource+' :%s' % resp.text)
 
 # Creates a NEW NETWORKSERVICE copied from source_networkservice in vrfcontext vrf_name and serviceenginegroup name new_seg_name
-def clone_networkservice (session_env, source_networkservice, target_vrf, target_segroup):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
+def clone_networkservice (api: object, source_networkservice_name: str, target_vrf_name: str, target_segroup_name: str) -> dict:
+    """
+    Clone a networkservice object with suffix -NEW from a given source network service on a given target vrf and target service engine group 
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    source_networkservice_name : str
+      The name of the networkservice to clone
+    
+    target_vrf_name : str
+      The name of the VRF to attach the new created networkservice
+    
+    target_segroup_name : str
+      The name of the service engine group to attach new create networkservice
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned network object output
 
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+    """ 
     
     # Get source object 
     # Cloning an object from an exising one after changing required parameters
     api_resource = "networkservice"
-    object_name = source_networkservice
 
     # Get the existing Object to be used as template
-    body = api.get_object_by_name (api_resource, object_name) # Response to be used as template
+    body = api.get_object_by_name (api_resource, source_networkservice_name) # Response to be used as template
 
     if (body): 
       # Get VRF reference 
-      vrfcontext = api.get_object_by_name("vrfcontext", target_vrf)
-      vrf_ref = api.get_obj_ref(vrfcontext)
+      vrfcontext = api.get_object_by_name("vrfcontext", target_vrf_name)
+      if vrfcontext:
+         vrf_ref = api.get_obj_ref(vrfcontext)
 
       # Get SEGroup reference 
-      segroup = api.get_object_by_name("serviceenginegroup", target_segroup)
-      se_group_ref = api.get_obj_ref(segroup)
+      segroup = api.get_object_by_name("serviceenginegroup", target_segroup_name)
+      if segroup:
+         se_group_ref = api.get_obj_ref(segroup)
 
       # Update body with new name 
-      body["name"] = source_networkservice+"-NEW"
+      body["name"] = source_networkservice_name+"-NEW"
       body["se_group_ref"] = se_group_ref
       body["vrf_ref"] = vrf_ref
       
       # Print info
-      print("Cloning existing "+api_resource+" "+source_networkservice+" into "+source_networkservice+"-NEW" )
+      print("Cloning existing "+api_resource+" "+source_networkservice_name+" into "+source_networkservice_name+"-NEW" )
 
       #Send BODY information via POST
       resp = api.post (api_resource, data=json.dumps(body))
@@ -166,44 +164,44 @@ def clone_networkservice (session_env, source_networkservice, target_vrf, target
       else:
         print('Error in creating '+api_resource+' :%s' % resp.text)
 
-
 # Clone existing VSVIP to a given target_vrf and target_placement_network 
-def clone_vsvips (session_env, vsvip_name, target_vrf, target_network):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def clone_vsvips (api: object, source_vsvip_name: str, target_vrf_name: str, target_network_name: str) -> dict:
+    """
+    Clone a vsvip object with suffix -NEW from a given vsvip on a given target vrf and target network
     
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    vsvip_name : str
+      The name of the vsvip to clone
+    
+    target_vrf_name : str
+      The name of the VRF to attach the new created networkservice
+    
+    target_network_name : str
+      The name of the network where to place the new vsvip
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned vsvip object output
 
+    """ 
+  
     # Get NEW network reference 
-    network = api.get_object_by_name("network", target_network)
+    network = api.get_object_by_name("network", target_network_name)
     if (network):
       target_network_ref = api.get_obj_ref(network)
       # Get NEW VRF reference 
-      target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf)
+      target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf_name)
       if (target_vrfcontext):
         target_vrf_ref = api.get_obj_ref(target_vrfcontext)
-        target_vrf_uuid = target_vrfcontext["uuid"]
 
         # Extract source vsvip object that will be used as body template for new object creation
-        vsvip = api.get_object_by_name("vsvip", vsvip_name)
-        print("Cloning existing vsvip "+vsvip["name"]+" into new vsvip "+vsvip["name"]+"-NEW @ VRF context "+target_vrf )
+        vsvip = api.get_object_by_name("vsvip", source_vsvip_name)
+        print("Cloning existing vsvip "+vsvip["name"]+" into new vsvip "+vsvip["name"]+"-NEW @ VRF context "+target_vrf_name )
         # Update body with updated information
         body = vsvip
         body["name"] = vsvip["name"]+"-NEW"
@@ -222,45 +220,42 @@ def clone_vsvips (session_env, vsvip_name, target_vrf, target_network):
         else:
           print('Error in creating vsvip :%s' % resp.text)
           
-
-
 # Clone Pools
-def clone_pools (session_env, source_vs, target_vrf):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+def clone_pools (api: object, source_vs_name: str, target_vrf_name: str) -> dict:
+    """
+    Clone a pool object with suffix -NEW from a given vs on a given target vrf
     
-    target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf)
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    source_vs_name : str
+      The name of the vs to clone
+    
+    target_vrf_name : str
+      The name of the VRF to attach the new created virtualservice
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned pool object output
+
+    """ 
+    
+    target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf_name)
     if (target_vrfcontext):
       target_vrf_ref = api.get_obj_ref(target_vrfcontext)
       # Extract pool  associated to the source vs
-      source_vs_name = source_vs["name"]
       vs = api.get_object_by_name("virtualservice", source_vs_name, params={"include_name":"true"})
-      pool_name = vs["pool_ref"].split("/")[5].split("#")[1]
       if vs:
+        pool_name = vs["pool_ref"].split("/")[5].split("#")[1]
         print ("\033[1mFound Pool Name "+pool_name+"\033[0m")
         print("\033[1m------------------------------\033[0m")
       
       pool=api.get_object_by_name("pool", pool_name, params={"include_name":"true"})
       body = pool
-      print("Cloning existing POOL named "+body["name"]+" into new POOL named "+body["name"]+"-NEW @ VRF context "+target_vrf )
+      print("Cloning existing POOL named "+body["name"]+" attached to VS " + source_vs_name+ " into new POOL named "+body["name"]+"-NEW @ VRF context "+target_vrf_name )
       # Update body with updated information 
       body["name"] = body["name"]+"-NEW"
       body["vrf_ref"] = target_vrf_ref
@@ -274,63 +269,55 @@ def clone_pools (session_env, source_vs, target_vrf):
       else:
           print('Error in creating Pool :%s' % resp.text)
         
-      # Extract all the created objects
-      query = {
-            "refers_to": "vrfcontext:"+target_vrf_uuid
-      }
-      resp = api.get ("pool", params=query) 
-      if resp.status_code in range(200, 299):
-        return(json.loads(resp.text)["results"])
 
 
-# Extract Virtual Services associated with given VRF and Service Engine Group
-# This function assumes you already have cloned VSVIPs and POOLS and reside in target VRF
-# The new migrated objects will have a naming as source-name-NEW
-def clone_virtualservices (session_env, source_vs, target_vrf, target_segroup):
-    # Establish a first session with AVI Controller
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
-    # Update headers and api version imported from demo env file with controller version (ensure actual API Version is uses in subsequent requests
-    session_env['headers']['X-Avi-Version'] = api.remote_api_version['Version']
-    session_env['api_version'] = api.remote_api_version['Version']
-
-    # Create a new session with received AVI API Version
-    api = ApiSession(
-        controller_ip=session_env['controller_ip'],
-        username=session_env['controller_username'],
-        password=session_env['controller_password'],
-        tenant=session_env['tenant'],
-        api_version=session_env['api_version']
-        )
+# Clone VS
+def clone_virtualservices (api:object, source_vs_name: str, target_vrf_name: str, target_segroup_name: str) -> dict:
+    """
+    Clone a pool object with suffix -NEW from a given vs on a given target vrf
     
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    source_vs_name : str
+      The name of the vs to clone
+    
+    target_vrf_name : str
+      The name of the VRF to attach the new created virtualservice
+
+    target_segroup_name : str
+      The name of the segroup to to attach the new created virtualservice
+    
+    Returns:
+    --------
+    dict
+      Dictionary containing cloned pool object output
+
+    """ 
     # Set API Resource to be cloned
     api_resource = "virtualservice"
 
     # Get TARGET VRF and SEGROUP references and UUIDs
-    target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf)
-    target_segroup = api.get_object_by_name("serviceenginegroup", target_segroup)
+    target_vrfcontext = api.get_object_by_name("vrfcontext", target_vrf_name)
+    target_segroup = api.get_object_by_name("serviceenginegroup", target_segroup_name)
     if (target_vrfcontext and target_segroup):
       target_vrf_ref = api.get_obj_ref(target_vrfcontext)
       target_segroup_ref = api.get_obj_ref(target_segroup)
-      vs = api.get_object_by_name ("virtualservice", source_vs["name"], params={"include_name": "true"})
-      print(vs)
+      vs = api.get_object_by_name ("virtualservice", source_vs_name, params={"include_name": "true"})
       if vs:
-        print (" - Found virtual service "+source_vs["name"])
+        print (" - Found virtual service "+ vs["name"])
         print("-------------------------------------------------------------------------------")
       i = 1    
       # Extract the name of current VSVIP
-      print ("Extracting information for source VS "+ vs["name"]+"....")
+      print ("Extracting information for source VS "+ vs["name"] +"....")
       source_vsvip_name = vs["vsvip_ref"].split("/")[5].split("#")[1]
-      print(" - Found source VSVIP "+source_vsvip_name)
+      print("    - Found source VSVIP "+source_vsvip_name)
       
       # Extract the name of current Pool
       source_pool_name = vs["pool_ref"].split("/")[5].split("#")[1]
-      print(" - Found source POOL "+source_pool_name)
+      print("    - Found source POOL "+source_pool_name)
 
       # Extract TARGET VSVIP and POOL INFORMATION (it is assumed a previous step to migrate source object into object-NEW has been completed)
       print()
@@ -352,6 +339,7 @@ def clone_virtualservices (session_env, source_vs, target_vrf, target_segroup):
           vs["pool_ref"]= target_pool_ref
           vs["se_group_ref"] = target_segroup_ref
           vs["vrf_context_ref"] = target_vrf_ref
+          vs["enabled"] = False
           print()
           print("Everything looks OK, cloning VS")
           body = vs
