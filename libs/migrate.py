@@ -159,7 +159,6 @@ def configure_interface (api, target_se_data, target_vrf_name):
 
 
 def disable_vs (api: object, vs_name: str):  
-# Establish a first session with AVI Controller
     """
     Disable a interface named if_name of a servive engine name (Default-Cloud is assumed) 
     
@@ -192,7 +191,6 @@ def disable_vs (api: object, vs_name: str):
       print('Error in modifying '+url_path+' :%s' % resp.text)
 
 def enable_vs (api: object, vs_name: str):  
-# Establish a first session with AVI Controller
     """
     Disable a Virtual service named if_name of a servive engine name (Default-Cloud is assumed) 
     
@@ -223,3 +221,68 @@ def enable_vs (api: object, vs_name: str):
       print(" - VirtualService "+vs_name+" set to ENABLED")
     else:
       print('Error in modifying '+url_path+' :%s' % resp.text)
+
+def adjust_max_vs_per_se (api: object, source_seg_name: str, target_seg_name: str) -> int:
+    """
+    Function to acommodate migrated Vs from source seg into target seg
+    
+    Parameters:
+    -----------
+    api : avi.sdk.avi_api.ApiSession
+      The AVI ApiSession object containing session paramenters to use AVI API
+    
+    vs_name : str
+      The name of the VS to enable 
+    
+    """ 
+    # Increase the number of VS per SE to acommodate imported VS
+    source_seg = api.get_object_by_name("serviceenginegroup", source_seg_name)
+    source_seg_uuid = source_seg["uuid"]
+
+    target_seg = api.get_object_by_name("serviceenginegroup", target_seg_name)
+    target_seg_uuid = target_seg["uuid"]
+    target_max_vs_per_se = target_seg["max_vs_per_se"]
+    
+    # Get Source VS Count
+    query = {
+       "include_name": "true",
+       "refers_to": "serviceenginegroup:"+source_seg_uuid
+    }
+
+    resp = api.get("virtualservice", params=query)
+    if resp.status_code in range(200, 299):
+        source_vs_count = json.loads(resp.text)["count"]
+        print(" - Found "+str(source_vs_count)+" virtual services at source Service Engine group "+ source_seg_name)
+    else:
+      print('Error in getting virtualservices information :%s' % resp.text)
+    
+    # Get Source VS Count
+    query = {
+       "include_name": "true",
+       "refers_to": "serviceenginegroup:"+target_seg_uuid
+    }
+     
+    resp = api.get("virtualservice", params=query)
+    if resp.status_code in range(200, 299):
+        target_vs_count = json.loads(resp.text)["count"]
+        print(" - Found "+str(target_vs_count)+" virtual services at target Service Engine group "+ source_seg_name)
+    else:
+      print('Error in getting virtualservices information :%s' % resp.text)
+    
+    body = target_seg
+
+    if ((source_vs_count + target_vs_count) >= (target_max_vs_per_se - 5)):
+        body["max_vs_per_se"] = source_vs_count + target_vs_count + 5
+        
+        # Remove _last_modified key to avoid concurrent update error
+        body.pop("_last_modified", None)
+
+        url_path = "serviceenginegroup/"+target_seg_uuid
+        resp = api.put (url_path, data=json.dumps(body))
+
+        if resp.status_code in range(200, 299):
+          return(json.loads(resp.text)["max_vs_per_se"])
+        else:
+          print('Error in modifying '+url_path+' :%s' % resp.text)
+    else:
+       return(target_max_vs_per_se)
